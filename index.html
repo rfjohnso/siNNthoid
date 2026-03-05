@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>siNNthoid Phase VCO</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="rack-background" aria-hidden="true">
+      <svg viewBox="0 0 1600 900" preserveAspectRatio="none">
+        <path d="M20 120 C 240 300, 420 40, 740 180 S 1280 460, 1580 300" />
+        <path d="M80 700 C 300 420, 640 840, 980 500 S 1380 160, 1580 260" />
+        <path d="M0 460 C 280 520, 520 260, 820 420 S 1380 720, 1600 630" />
+        <path d="M20 820 C 260 920, 560 760, 820 820 S 1300 900, 1600 820" />
+      </svg>
+    </div>
+
+    <header class="top-bar module-panel">
+      <div>
+        <h1>siNNthoid Phase VCO</h1>
+        <p>
+          Four-oscillator phasing synth inspired by modular reinterpretations of
+          <em>Piano Phase</em>
+        </p>
+      </div>
+      <div class="transport-buttons">
+        <button id="initAudio" class="accent">Initialize Audio</button>
+        <button id="startPhase">Start Phase Loop</button>
+        <button id="stopPhase">Stop</button>
+        <button id="panic">Panic</button>
+      </div>
+      <div class="status-wrap">
+        <span class="status-label">Status</span>
+        <span id="statusText" class="status-pill">Idle</span>
+      </div>
+    </header>
+
+    <main class="rack-grid">
+      <section class="module-panel global-panel">
+        <h2>Clock + Phrase</h2>
+        <div id="globalKnobs" class="knob-grid"></div>
+        <div class="select-row">
+          <label for="rootNote">Root Note</label>
+          <select id="rootNote">
+            <option>C3</option>
+            <option selected>D3</option>
+            <option>E3</option>
+            <option>F3</option>
+            <option>G3</option>
+            <option>A3</option>
+            <option>B3</option>
+            <option>C4</option>
+          </select>
+          <label for="scaleType">Scale</label>
+          <select id="scaleType">
+            <option selected>Minor</option>
+            <option>Dorian</option>
+            <option>Major</option>
+            <option>Pentatonic</option>
+          </select>
+        </div>
+        <label for="melodyCell">Melodic Cell (semitones, comma-separated)</label>
+        <textarea id="melodyCell" spellcheck="false">0,2,3,5,7,5,3,2</textarea>
+      </section>
+
+      <section class="module-panel vco-panel">
+        <h2>4VCO Matrix</h2>
+        <div id="vcoBank" class="vco-bank"></div>
+      </section>
+
+      <section class="module-panel fx-panel">
+        <h2>Envelope + Filter + FX</h2>
+        <div id="fxKnobs" class="knob-grid"></div>
+      </section>
+
+      <section class="module-panel phase-panel">
+        <h2>Phase Monitor</h2>
+        <div id="phaseGrid" class="phase-grid"></div>
+        <canvas id="scope" width="620" height="180"></canvas>
+      </section>
+
+      <section class="module-panel record-panel">
+        <h2>Recorder</h2>
+        <div class="record-controls">
+          <button id="recordStart" class="accent">Start Recording</button>
+          <button id="recordStop" disabled>Stop Recording</button>
+        </div>
+        <ol id="recordings" class="recordings"></ol>
+      </section>
+
+      <section class="module-panel keyboard-panel">
+        <h2>Performance Keyboard</h2>
+        <p class="hint">Use keyboard: Z S X D C V G B H N J M ,</p>
+        <div id="keyboard" class="keyboard"></div>
+      </section>
+    </main>
+
+    <template id="knobTemplate">
+      <div class="knob-control">
+        <button class="knob" type="button" aria-label="Synth control">
+          <span class="knob-indicator"></span>
+        </button>
+        <div class="knob-label"></div>
+        <div class="knob-value"></div>
+      </div>
+    </template>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

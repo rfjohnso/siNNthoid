@@ -1,0 +1,47 @@
+{
+  "name": "reich-phase-four-vco",
+  "version": "1.0.0",
+  "description": "Cross-platform 4 VCO phasing synthesizer inspired by modular systems and Steve Reich's Piano Phase.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "package:win": "electron-builder --win",
+    "package:mac": "electron-builder --mac",
+    "package:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.polverized.sinnthoid.phasevco",
+    "productName": "siNNthoid Phase VCO",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js",
+      "assets/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.music"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "AudioVideo"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^40.7.0",
+    "electron-builder": "^26.8.1"
+  }
+}
