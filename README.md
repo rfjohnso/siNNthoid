@@ -57,3 +57,5 @@ Edit the `Melodic Cell` box with comma-separated semitone offsets, for example:
 ```
 
 Each VCO runs the same cell with controllable time displacement to create phasing and emergent harmony.
+
+MIT license
