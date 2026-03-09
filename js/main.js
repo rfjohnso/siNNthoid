@@ -29,6 +29,7 @@ const recordingsList = document.getElementById('recordings');
 const keyboardWrap = document.getElementById('keyboard');
 const resetLayoutBtn = document.getElementById('resetLayout');
 const panelMenuBtn = document.getElementById('panelMenuBtn');
+const toggleCablesBtn = document.getElementById('toggleCables');
 const cableOverlay = document.getElementById('cableOverlay');
 const drum808Container = document.getElementById('drum808Content');
 const gb707Container = document.getElementById('gb707Content');
@@ -308,6 +309,11 @@ function initEvents() {
     // Simple: show all hidden panels
     hidden.forEach((p) => showPanel(p.id));
     setStatus(`Restored ${hidden.length} panel(s)`);
+  });
+
+  toggleCablesBtn?.addEventListener('click', () => {
+    const isHidden = cableOverlay.classList.toggle('cables-hidden');
+    toggleCablesBtn.textContent = isHidden ? 'Show Cables' : 'Hide Cables';
   });
 }
 
