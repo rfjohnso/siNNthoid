@@ -1,7 +1,7 @@
 {
   "name": "reich-phase-four-vco",
   "version": "1.0.0",
-  "description": "Cross-platform 4 VCO phasing synthesizer inspired by modular systems and Steve Reich's Piano Phase.",
+  "description": "Cross-platform modular synthesizer with 4 phasing VCOs, TR-808 drum machine, MC-707 groovebox, draggable panels, and virtual patch cable routing.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
