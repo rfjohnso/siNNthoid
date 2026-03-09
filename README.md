@@ -1,5 +1,9 @@
 # siNNthoid Phase VCO
 
+<p align="center">
+  <img src="assets/screenshot.png" alt="siNNthoid Phase VCO" width="720" />
+</p>
+
 A cross-platform desktop modular synthesizer (Electron + Web Audio) featuring four phasing VCOs, an analog-style drumbox, a clip-based groovebox, and a virtual patch cable routing system — all in a draggable, resizable panel workspace.
 
 Inspired by *Piano Phase* reinterpretation techniques and the hands-on workflow of Eurorack modular synthesis.
