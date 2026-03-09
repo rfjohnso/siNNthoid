@@ -18,22 +18,25 @@
 html,
 body {
   margin: 0;
-  min-height: 100%;
+  min-height: 100vh;
   background: radial-gradient(circle at 20% 15%, #131f37 0%, var(--bg0) 62%);
   color: var(--text);
   font-family: 'Futura PT', 'Avenir Next', 'Century Gothic', sans-serif;
+  overflow: hidden;
 }
 
 body {
   position: relative;
-  padding: 14px;
 }
+
+/* ─── Background decoration ─────────────────────────── */
 
 .rack-background {
   position: fixed;
   inset: 0;
   pointer-events: none;
   opacity: 0.4;
+  z-index: 0;
 }
 
 .rack-background svg {
@@ -47,25 +50,224 @@ body {
   stroke-width: 8;
 }
 
-.rack-background path:nth-child(1) {
-  stroke: #ff4a8f;
-}
-.rack-background path:nth-child(2) {
-  stroke: #ff9870;
-}
-.rack-background path:nth-child(3) {
-  stroke: #de4ddb;
-}
-.rack-background path:nth-child(4) {
-  stroke: #f8b23d;
+.rack-background path:nth-child(1) { stroke: #ff4a8f; }
+.rack-background path:nth-child(2) { stroke: #ff9870; }
+.rack-background path:nth-child(3) { stroke: #de4ddb; }
+.rack-background path:nth-child(4) { stroke: #f8b23d; }
+
+/* ─── Cable overlay ─────────────────────────────────── */
+
+.cable-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  overflow: visible;
 }
 
+.cable {
+  pointer-events: stroke;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.cable:hover {
+  filter: brightness(1.3) drop-shadow(0 0 6px currentColor);
+}
+
+.cable-selected {
+  filter: brightness(1.4) drop-shadow(0 0 10px currentColor);
+  stroke-width: 5 !important;
+}
+
+.cable-shadow {
+  pointer-events: none;
+}
+
+/* ─── Cable color picker ────────────────────────────── */
+
+.cable-color-picker {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: rgba(10, 16, 30, 0.95);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.2);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.color-swatch.active {
+  border-color: white;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Workspace ─────────────────────────────────────── */
+
+.workspace {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+  padding: 0 14px 14px;
+}
+
+/* ─── Panels ────────────────────────────────────────── */
+
+.module-panel {
+  position: absolute;
+  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(130deg, rgba(50, 68, 104, 0.16) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(14, 24, 44, 0.92), rgba(8, 14, 26, 0.85));
+  border-radius: 14px;
+  backdrop-filter: blur(3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.34);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.module-panel.panel-hidden {
+  display: none !important;
+}
+
+.module-panel.collapsed > *:not(.panel-header):not(.resize-handle) {
+  display: none !important;
+}
+
+.module-panel.collapsed {
+  height: 40px !important;
+  min-height: 40px !important;
+  overflow: hidden;
+}
+
+.module-panel.dragging {
+  opacity: 0.88;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.module-panel > *:not(.panel-header):not(.resize-handle) {
+  padding: 0 12px;
+}
+
+.module-panel > *:last-child {
+  padding-bottom: 12px;
+}
+
+.module-panel h2 {
+  display: none; /* replaced by panel header */
+}
+
+/* ─── Panel header (drag handle) ────────────────────── */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(40, 56, 85, 0.5), rgba(20, 32, 55, 0.5));
+  border-bottom: 1px solid rgba(126, 154, 198, 0.15);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.panel-header:active {
+  cursor: grabbing;
+}
+
+.panel-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c5d4f0;
+}
+
+.panel-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.panel-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 170, 210, 0.3);
+  background: rgba(20, 30, 50, 0.6);
+  color: #90a2c3;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-btn:hover {
+  background: rgba(40, 55, 85, 0.8);
+  color: var(--text);
+}
+
+.panel-close-btn:hover {
+  background: rgba(200, 60, 80, 0.5);
+  color: #ffa0b0;
+}
+
+/* ─── Resize handles ────────────────────────────────── */
+
+.resize-handle {
+  position: absolute;
+  z-index: 10;
+}
+
+.resize-n  { top: -3px; left: 8px; right: 8px; height: 6px; cursor: n-resize; }
+.resize-s  { bottom: -3px; left: 8px; right: 8px; height: 6px; cursor: s-resize; }
+.resize-e  { right: -3px; top: 8px; bottom: 8px; width: 6px; cursor: e-resize; }
+.resize-w  { left: -3px; top: 8px; bottom: 8px; width: 6px; cursor: w-resize; }
+.resize-ne { top: -3px; right: -3px; width: 12px; height: 12px; cursor: ne-resize; }
+.resize-nw { top: -3px; left: -3px; width: 12px; height: 12px; cursor: nw-resize; }
+.resize-se { bottom: -3px; right: -3px; width: 12px; height: 12px; cursor: se-resize; }
+.resize-sw { bottom: -3px; left: -3px; width: 12px; height: 12px; cursor: sw-resize; }
+
+/* ─── Top bar ───────────────────────────────────────── */
+
 .top-bar {
-  display: grid;
+  position: relative !important;
+  width: 100% !important;
+  display: grid !important;
   grid-template-columns: 1.6fr 1fr auto;
   gap: 14px;
   align-items: center;
-  margin-bottom: 12px;
+  padding: 12px 14px !important;
+  border-radius: 0 0 14px 14px;
+  flex-direction: row;
+  overflow: visible;
+}
+
+.top-bar > * {
+  padding: 0 !important;
 }
 
 .top-bar h1 {
@@ -73,12 +275,18 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 1.25rem;
+  display: block !important;
 }
 
 .top-bar p {
   margin: 2px 0 0;
   color: var(--muted);
   font-size: 0.88rem;
+  display: block !important;
+}
+
+.top-bar .panel-header {
+  display: none !important;
 }
 
 .transport-buttons {
@@ -116,6 +324,16 @@ button.accent {
   box-shadow: 0 0 0 1px rgba(6, 186, 212, 0.28) inset, 0 0 16px rgba(10, 180, 210, 0.2);
 }
 
+.btn-subtle {
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  opacity: 0.7;
+}
+
+.btn-subtle:hover {
+  opacity: 1;
+}
+
 .status-wrap {
   justify-self: end;
   text-align: right;
@@ -137,46 +355,12 @@ button.accent {
   background: rgba(15, 32, 62, 0.62);
 }
 
-.module-panel {
-  position: relative;
-  border: 1px solid var(--panel-border);
-  background:
-    linear-gradient(130deg, rgba(50, 68, 104, 0.16) 0%, transparent 42%),
-    linear-gradient(180deg, rgba(14, 24, 44, 0.92), rgba(8, 14, 26, 0.85));
-  border-radius: 14px;
-  backdrop-filter: blur(3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.34);
-  padding: 12px;
-}
-
-.module-panel h2 {
-  margin: 0 0 10px;
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #d0dcf8;
-}
-
-.rack-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 2.1fr 1.2fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.vco-panel {
-  grid-row: span 2;
-}
-
-.phase-panel,
-.keyboard-panel {
-  grid-column: 1 / -1;
-}
+/* ─── Knobs ─────────────────────────────────────────── */
 
 .knob-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
 }
 
 .knob-control {
@@ -184,11 +368,11 @@ button.accent {
 }
 
 .knob {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 1px solid rgba(175, 197, 232, 0.45);
-  margin: 0 auto 6px;
+  margin: 0 auto 4px;
   padding: 0;
   position: relative;
   background:
@@ -199,26 +383,28 @@ button.accent {
 .knob-indicator {
   position: absolute;
   left: 50%;
-  top: 8px;
+  top: 6px;
   width: 3px;
-  height: 17px;
+  height: 14px;
   border-radius: 3px;
   background: linear-gradient(180deg, #f4f8ff 0%, #a7bee7 100%);
   transform: translateX(-50%) rotate(-130deg);
-  transform-origin: 50% 19px;
+  transform-origin: 50% 17px;
 }
 
 .knob-label {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   color: #b9c8e6;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .knob-value {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   color: #f5f7ff;
 }
+
+/* ─── Selects / textarea ────────────────────────────── */
 
 .select-row {
   display: flex;
@@ -239,10 +425,13 @@ textarea {
 
 textarea {
   width: 100%;
-  height: 68px;
+  height: 56px;
   resize: vertical;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
 }
+
+/* ─── VCO bank ──────────────────────────────────────── */
 
 .vco-bank {
   display: grid;
@@ -258,8 +447,8 @@ textarea {
 }
 
 .vco-strip h3 {
-  margin: 0 0 8px;
-  font-size: 0.78rem;
+  margin: 0 0 6px;
+  font-size: 0.74rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -268,28 +457,31 @@ textarea {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .vco-strip .mini-row label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: #b9caea;
 }
 
 .vco-strip select {
   flex: 1;
+  font-size: 0.78rem;
 }
+
+/* ─── Phase grid ────────────────────────────────────── */
 
 .phase-grid {
   display: grid;
-  grid-template-columns: repeat(16, minmax(12px, 1fr));
-  gap: 5px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(16, minmax(10px, 1fr));
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .phase-cell {
-  height: 12px;
-  border-radius: 4px;
+  height: 10px;
+  border-radius: 3px;
   border: 1px solid rgba(157, 177, 217, 0.25);
   background: rgba(19, 31, 55, 0.52);
   transition: background 120ms ease, box-shadow 120ms ease;
@@ -302,11 +494,13 @@ textarea {
 
 #scope {
   width: 100%;
-  height: 180px;
+  height: 120px;
   border-radius: 10px;
   border: 1px solid rgba(147, 170, 209, 0.35);
   background: #0a1222;
 }
+
+/* ─── Record ────────────────────────────────────────── */
 
 .record-controls {
   display: flex;
@@ -330,10 +524,12 @@ textarea {
   width: 100%;
 }
 
+/* ─── Keyboard ──────────────────────────────────────── */
+
 .hint {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
 }
 
 .keyboard {
@@ -344,8 +540,8 @@ textarea {
 }
 
 .key {
-  width: 38px;
-  height: 130px;
+  width: 32px;
+  height: 110px;
   border-radius: 0 0 8px 8px;
   border: 1px solid rgba(165, 185, 221, 0.35);
   background: linear-gradient(180deg, #f1f4ff, #bcc9e2);
@@ -353,17 +549,18 @@ textarea {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 8px;
-  font-size: 0.72rem;
+  padding-bottom: 6px;
+  font-size: 0.62rem;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .key.black {
-  width: 27px;
-  height: 88px;
-  margin-left: -13px;
-  margin-right: -13px;
+  width: 24px;
+  height: 72px;
+  margin-left: -12px;
+  margin-right: -12px;
   z-index: 2;
   background: linear-gradient(180deg, #2e3c57, #141d31);
   color: #e8efff;
@@ -374,24 +571,383 @@ textarea {
   box-shadow: 0 0 0 1px rgba(34, 227, 255, 0.7) inset, 0 0 16px rgba(34, 227, 255, 0.45);
 }
 
-@media (max-width: 1100px) {
-  .rack-grid {
-    grid-template-columns: 1fr;
-  }
+/* ─── Jacks ─────────────────────────────────────────── */
 
-  .vco-panel,
-  .phase-panel,
-  .keyboard-panel {
-    grid-column: auto;
-    grid-row: auto;
-  }
+.jack-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(126, 154, 198, 0.12);
+}
 
-  .top-bar {
-    grid-template-columns: 1fr;
-  }
+.jack {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(180, 200, 240, 0.5);
+  background: radial-gradient(circle at 35% 35%, #3a4a6a, #1a2540);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: crosshair;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
-  .status-wrap {
-    justify-self: start;
-    text-align: left;
-  }
+.jack::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0a1225, #050a16);
+  border: 1px solid rgba(100, 130, 180, 0.3);
+}
+
+.jack-output {
+  border-color: rgba(230, 100, 100, 0.6);
+}
+
+.jack-input {
+  border-color: rgba(100, 180, 230, 0.6);
+}
+
+.jack-connected {
+  border-color: rgba(120, 240, 180, 0.7) !important;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(120, 240, 180, 0.3);
+}
+
+.jack-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  color: #8898b8;
+  white-space: nowrap;
+  margin-top: 2px;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ─── TR-808 Drum Machine ───────────────────────────── */
+
+.drum-808-content {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.drum-top-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.drum-pattern-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.drum-pattern-btn {
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.drum-pattern-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.drum-transport-btn {
+  font-size: 0.78rem;
+  padding: 4px 14px;
+}
+
+.drum-knob-inline .knob {
+  width: 36px;
+  height: 36px;
+}
+
+.drum-knob-inline .knob-indicator {
+  top: 5px;
+  height: 11px;
+  transform-origin: 50% 13px;
+}
+
+.drum-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drum-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.drum-inst-label {
+  width: 28px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.drum-row-knobs {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.drum-row-knobs .knob-control {
+  transform: scale(0.55);
+  transform-origin: center top;
+  margin-bottom: -20px;
+}
+
+.drum-steps {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.drum-step-btn {
+  width: 100%;
+  max-width: 28px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(140, 160, 200, 0.3);
+  background: rgba(15, 22, 38, 0.7);
+  padding: 0;
+  cursor: pointer;
+  transition: background 80ms, box-shadow 80ms;
+  flex: 1;
+}
+
+.drum-step-btn.on {
+  background: linear-gradient(180deg, #e8364f, #b0283d);
+  border-color: rgba(232, 54, 79, 0.6);
+  box-shadow: 0 0 6px rgba(232, 54, 79, 0.4);
+}
+
+.drum-step-btn.group-1.on { background: linear-gradient(180deg, #e8364f, #b0283d); }
+.drum-step-btn.group-2.on { background: linear-gradient(180deg, #f0c830, #c0a020); }
+.drum-step-btn.group-3.on { background: linear-gradient(180deg, #e8364f, #b0283d); }
+.drum-step-btn.group-4.on { background: linear-gradient(180deg, #f0c830, #c0a020); }
+
+.drum-step-btn.playing {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 10px rgba(27, 215, 255, 0.4);
+}
+
+.drum-step-btn.accent-step.on {
+  background: linear-gradient(180deg, #f0c830, #c0a020);
+  border-color: rgba(240, 200, 48, 0.5);
+}
+
+.drum-accent-row {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(126, 154, 198, 0.12);
+}
+
+/* ─── MC-707 Groovebox ──────────────────────────────── */
+
+.gb-707-content {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.gb-scene-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.gb-scene-btn {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+}
+
+.gb-transport-btn {
+  font-size: 0.72rem;
+  padding: 4px 14px;
+  margin-left: auto;
+}
+
+.gb-track-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gb-track-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(126, 154, 198, 0.08);
+}
+
+.gb-track-label {
+  width: 32px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.gb-clip-grid {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.gb-clip-btn {
+  width: 44px;
+  height: 28px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0;
+}
+
+.gb-clip-btn.active {
+  border-color: var(--ok);
+  color: var(--ok);
+  box-shadow: 0 0 8px rgba(121, 240, 183, 0.3);
+}
+
+.gb-clip-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gb-track-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+}
+
+.gb-wave-select {
+  width: 48px;
+  font-size: 0.68rem;
+  padding: 3px 4px;
+}
+
+.gb-knob-row {
+  display: flex;
+  gap: 2px;
+}
+
+.gb-knob-row .knob-control {
+  transform: scale(0.5);
+  transform-origin: center top;
+  margin-bottom: -22px;
+}
+
+.gb-mute-btn,
+.gb-solo-btn {
+  width: 22px;
+  height: 22px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.gb-mute-btn.active {
+  background: rgba(232, 54, 79, 0.5);
+  border-color: rgba(232, 54, 79, 0.7);
+  color: #ff8090;
+}
+
+.gb-solo-btn.active {
+  background: rgba(240, 200, 48, 0.4);
+  border-color: rgba(240, 200, 48, 0.7);
+  color: #f0d060;
+}
+
+.gb-editor-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 8px 12px 4px;
+}
+
+.gb-step-editor {
+  display: flex;
+  gap: 3px;
+  padding: 0 12px;
+}
+
+.gb-step-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.gb-step-btn {
+  width: 100%;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid rgba(140, 160, 200, 0.3);
+  background: rgba(15, 22, 38, 0.7);
+  padding: 0;
+  cursor: pointer;
+  transition: background 80ms;
+}
+
+.gb-step-btn.on {
+  background: linear-gradient(180deg, #3a9fff, #2570c0);
+  border-color: rgba(58, 159, 255, 0.5);
+  box-shadow: 0 0 6px rgba(58, 159, 255, 0.3);
+}
+
+.gb-step-btn.playing {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 10px rgba(27, 215, 255, 0.4);
+}
+
+.gb-note-label {
+  font-size: 0.5rem;
+  color: #8898b8;
+  min-height: 12px;
+}
+
+/* ─── Scrollbar styling ─────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 16, 28, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 130, 180, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 130, 180, 0.5);
 }
