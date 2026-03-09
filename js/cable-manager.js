@@ -1,3 +1,18 @@
+// Cable Manager: SVG patch cable rendering and interaction.
+//
+// CROSS-FILE DEPENDENCIES:
+// - Calls patchRouter.connect() / .disconnect() (patch-router.js) using jack IDs
+//   read from DOM element data-jack-id attributes.
+// - Listens for 'panel-moved' and 'panel-visibility-changed' custom events dispatched
+//   by panel-manager.js. If those event names change, cables stop updating.
+// - initCableManager() is called by main.js, which passes the SVG overlay element
+//   and PatchRouter instance. Must only be called ONCE (no re-init guard).
+// - createConnection() and loadSavedCables() are called by main.js to set up default
+//   or saved cables. The CABLE_COLORS array is also exposed for default cable setup.
+// - saveCables()/loadSavedCables() persist to localStorage key 'sinnthoid-cables'.
+//   The format is [{source: jackId, dest: jackId, color: hexString}, ...].
+//   If jack IDs change, saved cables silently fail to restore.
+
 const CABLE_COLORS = [
   { name: 'red', hex: '#e8364f' },
   { name: 'yellow', hex: '#f0c830' },
@@ -71,6 +86,17 @@ function createSvgPath(color, id) {
 }
 
 function updateCablePath(cable) {
+  // Skip cables whose jacks are in hidden/collapsed panels (offsetParent is null
+  // for display:none elements). Without this check, getBoundingClientRect() returns
+  // all zeros, snapping cables to the top-left corner.
+  if (!cable.sourceEl.offsetParent || !cable.destEl.offsetParent) {
+    cable.svgPath.style.display = 'none';
+    cable.svgShadow.style.display = 'none';
+    return;
+  }
+  cable.svgPath.style.display = '';
+  cable.svgShadow.style.display = '';
+
   const p1 = getJackCenter(cable.sourceEl);
   const p2 = getJackCenter(cable.destEl);
   const d = makeCablePath(p1.x, p1.y, p2.x, p2.y);
@@ -101,10 +127,7 @@ function removeCable(cable) {
     selectedCable = null;
   }
 
-  cable.sourceEl.classList.remove('jack-connected');
-  cable.destEl.classList.remove('jack-connected');
-
-  // Check if jacks still have other connections
+  // Only remove jack-connected if no other cables use that jack
   const sourceStillConnected = cables.some((c) => c.sourceEl === cable.sourceEl);
   const destStillConnected = cables.some((c) => c.destEl === cable.destEl);
   if (!sourceStillConnected) {
@@ -178,8 +201,12 @@ export function initCableManager(svg, router) {
   svgOverlay = svg;
   patchRouter = router;
 
-  // Update cables when panels move or workspace scrolls
+  // Update cables when panels move, resize, scroll, or change visibility.
+  // IMPORTANT: If you add new panel events (e.g. panel-resized), add a
+  // listener here too or cables will go stale.
   window.addEventListener('panel-moved', updateAllCables);
+  window.addEventListener('panel-visibility-changed', updateAllCables);
+  window.addEventListener('resize', updateAllCables);
   const workspace = document.getElementById('workspace');
   if (workspace) {
     workspace.addEventListener('scroll', updateAllCables);

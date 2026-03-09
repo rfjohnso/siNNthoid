@@ -48,8 +48,14 @@ function setStatus(text) {
 
 // ─── Audio init ────────────────────────────────────────
 
+let audioInitInProgress = false; // mutex to prevent double-init from rapid clicks
+
 async function ensureAudioReady() {
+  if (audioInitInProgress) {
+    return false; // another init is already running
+  }
   if (!state.audioReady) {
+    audioInitInProgress = true;
     try {
       await synth.init();
       if (synth.ctx.state === 'suspended') {
@@ -84,13 +90,27 @@ async function ensureAudioReady() {
       setStatus(`Audio ready on ${window.sinnthoid?.platform || 'desktop'}`);
     } catch (error) {
       setStatus(`Audio init failed: ${error.message}`);
+      audioInitInProgress = false;
       return false;
     }
+    audioInitInProgress = false;
   }
   return true;
 }
 
 // ─── Patch routing registration ────────────────────────
+//
+// CROSS-FILE DEPENDENCY MAP:
+// Jack IDs (string keys) must match in THREE places or audio routing silently fails:
+//   1. data-jack-id attributes in index.html (static jacks) or buildUI() (dynamic jacks)
+//   2. registerJack() calls below
+//   3. createDefaultCables() src/dst strings below
+//
+// Audio node property names from getAudioNodes() must match synth-engine.js, drum-machine.js,
+// and groovebox.js return objects. If a property is renamed in one, update here too.
+//
+// Internal plumbing (driveInput→driveNode, delay feedback loop) is re-established below
+// after disconnectAll() severs all connections. If you add new internal routing, add it here.
 
 function registerAllJacks() {
   const nodes = synth.getAudioNodes();
@@ -134,7 +154,17 @@ function registerAllJacks() {
   // Master
   patchRouter.registerJack('master-in', nodes.masterGain, 'input', { label: 'Master In' });
 
-  // Internal: keep delay feedback loop always connected
+  // ── Internal plumbing (always connected, not routable via cables) ──
+  // IMPORTANT: disconnectAll() severs ALL node connections. These internal
+  // connections must be re-established here. If you add a new internal
+  // routing path, add its reconnection here too.
+  //
+  // Drive: driveInput (GainNode) → driveNode (WaveShaperNode)
+  // Without this, audio entering 'drive-in' jack never reaches 'drive-out'.
+  nodes.driveInput.connect(nodes.driveNode);
+  //
+  // Delay feedback loop: delayNode → delayFeedback → delayNode
+  // Plus: delayNode → delayWet (so delayed signal reaches 'delay-out' jack)
   nodes.delayNode.connect(nodes.delayFeedback);
   nodes.delayFeedback.connect(nodes.delayNode);
   nodes.delayNode.connect(nodes.delayWet);
