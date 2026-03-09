@@ -178,8 +178,12 @@ export function initCableManager(svg, router) {
   svgOverlay = svg;
   patchRouter = router;
 
-  // Update cables when panels move
+  // Update cables when panels move or workspace scrolls
   window.addEventListener('panel-moved', updateAllCables);
+  const workspace = document.getElementById('workspace');
+  if (workspace) {
+    workspace.addEventListener('scroll', updateAllCables);
+  }
 
   // Delete selected cable on key press
   window.addEventListener('keydown', (e) => {
