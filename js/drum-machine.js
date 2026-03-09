@@ -133,6 +133,7 @@ export class DrumMachine808 {
 
     osc.start(time);
     osc.stop(time + 0.35);
+    osc.onended = () => amp.disconnect(); // prevent memory leak
   }
 
   triggerSnare(time, accent) {
@@ -151,6 +152,7 @@ export class DrumMachine808 {
     bodyAmp.connect(this.snareGain);
     osc.start(time);
     osc.stop(time + 0.12);
+    osc.onended = () => bodyAmp.disconnect();
 
     // Noise
     const noise = this.ctx.createBufferSource();
@@ -167,6 +169,7 @@ export class DrumMachine808 {
     noiseAmp.connect(this.snareGain);
     noise.start(time);
     noise.stop(time + 0.2);
+    noise.onended = () => { noiseBp.disconnect(); noiseAmp.disconnect(); };
   }
 
   triggerClap(time, accent) {
@@ -196,6 +199,7 @@ export class DrumMachine808 {
     amp.connect(this.percGain);
     noise.start(time);
     noise.stop(time + 0.2);
+    noise.onended = () => { bp.disconnect(); amp.disconnect(); };
   }
 
   triggerHiHat(time, accent, open = false) {
@@ -208,6 +212,7 @@ export class DrumMachine808 {
     const merger = this.ctx.createGain();
     merger.gain.value = 0.3;
 
+    let lastOsc = null;
     freqs.forEach((f) => {
       const osc = this.ctx.createOscillator();
       osc.type = 'square';
@@ -215,6 +220,7 @@ export class DrumMachine808 {
       osc.connect(merger);
       osc.start(time);
       osc.stop(time + decay + 0.05);
+      lastOsc = osc;
     });
 
     const hp = this.ctx.createBiquadFilter();
@@ -228,6 +234,11 @@ export class DrumMachine808 {
     merger.connect(hp);
     hp.connect(amp);
     amp.connect(this.hhGain);
+
+    // Clean up intermediate nodes after all oscillators finish
+    if (lastOsc) {
+      lastOsc.onended = () => { merger.disconnect(); hp.disconnect(); amp.disconnect(); };
+    }
   }
 
   triggerTom(time, accent, type) {
@@ -250,6 +261,7 @@ export class DrumMachine808 {
     amp.connect(this.percGain);
     osc.start(time);
     osc.stop(time + 0.25);
+    osc.onended = () => amp.disconnect();
   }
 
   triggerCowbell(time, accent) {
@@ -287,6 +299,7 @@ export class DrumMachine808 {
     osc2.start(time);
     osc1.stop(time + 0.12);
     osc2.stop(time + 0.12);
+    osc2.onended = () => { merge.disconnect(); bp.disconnect(); amp.disconnect(); };
   }
 
   triggerRimshot(time, accent) {
@@ -306,6 +319,7 @@ export class DrumMachine808 {
     oscAmp.connect(this.percGain);
     osc.start(time);
     osc.stop(time + 0.03);
+    osc.onended = () => oscAmp.disconnect();
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.noiseBuffer;
@@ -321,6 +335,7 @@ export class DrumMachine808 {
     nAmp.connect(this.percGain);
     noise.start(time);
     noise.stop(time + 0.03);
+    noise.onended = () => { bp.disconnect(); nAmp.disconnect(); };
   }
 
   triggerCymbal(time, accent) {
@@ -332,6 +347,7 @@ export class DrumMachine808 {
     const merger = this.ctx.createGain();
     merger.gain.value = 0.25;
 
+    let lastOsc = null;
     freqs.forEach((f) => {
       const osc = this.ctx.createOscillator();
       osc.type = 'square';
@@ -339,6 +355,7 @@ export class DrumMachine808 {
       osc.connect(merger);
       osc.start(time);
       osc.stop(time + 0.9);
+      lastOsc = osc;
     });
 
     const hp = this.ctx.createBiquadFilter();
@@ -352,6 +369,10 @@ export class DrumMachine808 {
     merger.connect(hp);
     hp.connect(amp);
     amp.connect(this.hhGain);
+
+    if (lastOsc) {
+      lastOsc.onended = () => { merger.disconnect(); hp.disconnect(); amp.disconnect(); };
+    }
   }
 
   triggerMaracas(time, accent) {
@@ -373,6 +394,7 @@ export class DrumMachine808 {
     amp.connect(this.percGain);
     noise.start(time);
     noise.stop(time + 0.04);
+    noise.onended = () => { hp.disconnect(); amp.disconnect(); };
   }
 
   triggerInstrument(id, time, accent) {

@@ -1,7 +1,18 @@
+// PatchRouter: Web Audio graph routing engine.
+//
+// CROSS-FILE DEPENDENCIES:
+// - Jack IDs (strings) must match between: HTML data-jack-id, main.js registerAllJacks(),
+//   and cable-manager.js (which reads data-jack-id from DOM elements).
+// - Called by cable-manager.js: connect(sourceId, destId) and disconnect(sourceId, destId)
+//   whenever a cable is created or removed.
+// - Audio nodes registered here come from synth-engine.js, drum-machine.js, and groovebox.js
+//   via their getAudioNodes() methods. If those return shapes change, registrations break.
+// - For AudioParam CV connections (filter cutoff, resonance, delay time), the `param` option
+//   must be set. Regular audio connections use the `node` directly.
 export class PatchRouter {
   constructor() {
     this.jacks = new Map(); // jackId -> { node, type: 'output'|'input', param?, label }
-    this.connections = new Map(); // `${srcId}->${destId}` -> { source, dest }
+    this.connections = new Map(); // `${srcId}->${destId}` -> { sourceId, destId }
   }
 
   registerJack(jackId, node, type, options = {}) {

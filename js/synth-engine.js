@@ -63,6 +63,9 @@ export class FourVCOPhasingSynth {
     this.updateAllParams();
   }
 
+  // IMPORTANT: The property names in this return object are the API contract used by
+  // main.js registerAllJacks(). Renaming any property here requires updating main.js too.
+  // The patch router and cable system depend on these exact node references.
   getAudioNodes() {
     return {
       vcoBus: this.vcoBus,
@@ -100,20 +103,21 @@ export class FourVCOPhasingSynth {
     this.lfoDepth.connect(this.masterFilter.frequency);
   }
 
+  // Called by main.js before registering jacks with the PatchRouter.
+  // After this, main.js registerAllJacks() re-establishes internal plumbing
+  // (driveInput→driveNode, delay feedback). If you add internal routing,
+  // make sure registerAllJacks() reconnects it.
   disconnectAll() {
-    try {
-      this.driveInput.disconnect();
-      this.driveNode.disconnect();
-      this.masterFilter.disconnect();
-      this.delayNode.disconnect();
-      this.delayFeedback.disconnect();
-      this.dryGain.disconnect();
-      this.delayWet.disconnect();
-      this.masterGain.disconnect();
-      this.lfoDepth.disconnect();
-      this.vcoBus.forEach((bus) => bus.disconnect());
-    } catch (e) {
-      // nodes may not be connected
+    // Disconnect each node individually so one failure doesn't skip the rest.
+    // Nodes may throw if not connected, which is safe to ignore per-node.
+    const nodesToDisconnect = [
+      this.driveInput, this.driveNode, this.masterFilter,
+      this.delayNode, this.delayFeedback, this.dryGain,
+      this.delayWet, this.masterGain, this.lfoDepth,
+      ...this.vcoBus
+    ];
+    for (const node of nodesToDisconnect) {
+      try { node.disconnect(); } catch (e) { /* node may not be connected */ }
     }
     // Always keep destination + analyser + recordStream on masterGain
     this.masterGain.connect(this.analyser);
@@ -202,6 +206,13 @@ export class FourVCOPhasingSynth {
     osc.connect(amp);
     amp.connect(pan);
     pan.connect(this.vcoBus[vcoIndex]);
+
+    // Clean up intermediate nodes when the oscillator finishes to prevent memory leaks.
+    // Without this, amp and pan GainNodes remain connected to vcoBus indefinitely.
+    osc.onended = () => {
+      amp.disconnect();
+      pan.disconnect();
+    };
 
     const attack = Math.max(0.001, fx.attack);
     const decay = Math.max(0.01, fx.decay);

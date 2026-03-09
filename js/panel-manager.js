@@ -250,6 +250,11 @@ export function initPanelManager() {
 
       if (layout.collapsed) {
         panel.classList.add('collapsed');
+        // Update collapse button text to match restored state
+        const collapseBtn = panel.querySelector('.panel-collapse-btn');
+        if (collapseBtn) {
+          collapseBtn.textContent = '+';
+        }
       }
       if (layout.hidden) {
         panel.classList.add('panel-hidden');

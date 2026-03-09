@@ -140,6 +140,8 @@ export class Groovebox707 {
 
     osc.start(time);
     osc.stop(time + attack + decay + 0.05);
+    // Clean up intermediate nodes to prevent memory leaks
+    osc.onended = () => { filter.disconnect(); amp.disconnect(); };
   }
 
   // ─── Clock subscriber ──────────────────────────────────

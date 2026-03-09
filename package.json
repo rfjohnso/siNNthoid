@@ -8,6 +8,7 @@
     "dev": "electron .",
     "package:win": "electron-builder --win",
     "package:mac": "electron-builder --mac",
+    "test": "node tests/run-all.js",
     "package:linux": "electron-builder --linux"
   },
   "build": {
