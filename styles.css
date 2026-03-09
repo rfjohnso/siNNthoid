@@ -87,6 +87,16 @@ body {
   pointer-events: none;
 }
 
+.cable-overlay.cables-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.cable-overlay:not(.cables-hidden) {
+  transition: opacity 0.25s ease;
+}
+
 /* ─── Cable color picker ────────────────────────────── */
 
 .cable-color-picker {
