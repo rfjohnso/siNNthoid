@@ -18,7 +18,7 @@
       "preload.js",
       "index.html",
       "styles.css",
-      "app.js",
+      "js/**/*",
       "assets/**/*"
     ],
     "mac": {

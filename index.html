@@ -16,28 +16,36 @@
       </svg>
     </div>
 
-    <header class="top-bar module-panel">
-      <div>
-        <h1>siNNthoid Phase VCO</h1>
-        <p>
-          Four-oscillator phasing synth inspired by modular reinterpretations of
-          <em>Piano Phase</em>
-        </p>
-      </div>
-      <div class="transport-buttons">
-        <button id="initAudio" class="accent">Initialize Audio</button>
-        <button id="startPhase">Start Phase Loop</button>
-        <button id="stopPhase">Stop</button>
-        <button id="panic">Panic</button>
-      </div>
-      <div class="status-wrap">
-        <span class="status-label">Status</span>
-        <span id="statusText" class="status-pill">Idle</span>
-      </div>
-    </header>
+    <!-- SVG Cable Overlay -->
+    <svg id="cableOverlay" class="cable-overlay"></svg>
 
-    <main class="rack-grid">
-      <section class="module-panel global-panel">
+    <div id="workspace" class="workspace">
+
+      <!-- Top Bar (pinned) -->
+      <header class="module-panel top-bar" data-panel-id="panel-header-bar" data-panel-title="siNNthoid Phase VCO">
+        <div>
+          <h1>siNNthoid Phase VCO</h1>
+          <p>
+            Four-oscillator phasing synth with modular routing,
+            <em>TR-808</em> &amp; <em>MC-707</em>
+          </p>
+        </div>
+        <div class="transport-buttons">
+          <button id="initAudio" class="accent">Initialize Audio</button>
+          <button id="startPhase">Start Phase Loop</button>
+          <button id="stopPhase">Stop</button>
+          <button id="panic">Panic</button>
+          <button id="resetLayout" class="btn-subtle">Reset Layout</button>
+          <button id="panelMenuBtn" class="btn-subtle">Show Panels</button>
+        </div>
+        <div class="status-wrap">
+          <span class="status-label">Status</span>
+          <span id="statusText" class="status-pill">Idle</span>
+        </div>
+      </header>
+
+      <!-- Clock + Phrase -->
+      <section class="module-panel" data-panel-id="panel-global" data-panel-title="Clock + Phrase">
         <h2>Clock + Phrase</h2>
         <div id="globalKnobs" class="knob-grid"></div>
         <div class="select-row">
@@ -60,27 +68,64 @@
             <option>Pentatonic</option>
           </select>
         </div>
-        <label for="melodyCell">Melodic Cell (semitones, comma-separated)</label>
+        <label for="melodyCell">Melodic Cell (semitones)</label>
         <textarea id="melodyCell" spellcheck="false">0,2,3,5,7,5,3,2</textarea>
+        <div class="jack-row">
+          <div class="jack jack-output" data-jack-id="vco1-out" title="VCO 1 Out"><span class="jack-label">VCO1</span></div>
+          <div class="jack jack-output" data-jack-id="vco2-out" title="VCO 2 Out"><span class="jack-label">VCO2</span></div>
+          <div class="jack jack-output" data-jack-id="vco3-out" title="VCO 3 Out"><span class="jack-label">VCO3</span></div>
+          <div class="jack jack-output" data-jack-id="vco4-out" title="VCO 4 Out"><span class="jack-label">VCO4</span></div>
+          <div class="jack jack-output" data-jack-id="lfo-out" title="LFO Out"><span class="jack-label">LFO</span></div>
+        </div>
       </section>
 
-      <section class="module-panel vco-panel">
+      <!-- 4VCO Matrix -->
+      <section class="module-panel" data-panel-id="panel-vco" data-panel-title="4VCO Matrix">
         <h2>4VCO Matrix</h2>
         <div id="vcoBank" class="vco-bank"></div>
       </section>
 
-      <section class="module-panel fx-panel">
+      <!-- Envelope + Filter + FX -->
+      <section class="module-panel" data-panel-id="panel-fx" data-panel-title="Envelope + Filter + FX">
         <h2>Envelope + Filter + FX</h2>
         <div id="fxKnobs" class="knob-grid"></div>
+        <div class="jack-row">
+          <div class="jack jack-input" data-jack-id="drive-in" title="Drive In"><span class="jack-label">Drv In</span></div>
+          <div class="jack jack-output" data-jack-id="drive-out" title="Drive Out"><span class="jack-label">Drv Out</span></div>
+          <div class="jack jack-input" data-jack-id="filter-in" title="Filter In"><span class="jack-label">Flt In</span></div>
+          <div class="jack jack-output" data-jack-id="filter-out" title="Filter Out"><span class="jack-label">Flt Out</span></div>
+          <div class="jack jack-input" data-jack-id="filter-cutoff-cv" title="Cutoff CV"><span class="jack-label">Cut CV</span></div>
+          <div class="jack jack-input" data-jack-id="filter-res-cv" title="Resonance CV"><span class="jack-label">Res CV</span></div>
+          <div class="jack jack-input" data-jack-id="delay-in" title="Delay In"><span class="jack-label">Dly In</span></div>
+          <div class="jack jack-output" data-jack-id="delay-out" title="Delay Out"><span class="jack-label">Dly Out</span></div>
+          <div class="jack jack-input" data-jack-id="delay-time-cv" title="Delay Time CV"><span class="jack-label">Tm CV</span></div>
+          <div class="jack jack-input" data-jack-id="dry-in" title="Dry In"><span class="jack-label">Dry In</span></div>
+          <div class="jack jack-output" data-jack-id="dry-out" title="Dry Out"><span class="jack-label">Dry Out</span></div>
+          <div class="jack jack-input" data-jack-id="master-in" title="Master In"><span class="jack-label">Mstr In</span></div>
+        </div>
       </section>
 
-      <section class="module-panel phase-panel">
+      <!-- TR-808 Drum Machine -->
+      <section class="module-panel" data-panel-id="panel-808" data-panel-title="TR-808 Drum Machine">
+        <h2>TR-808 Drum Machine</h2>
+        <div id="drum808Content" class="drum-808-content"></div>
+      </section>
+
+      <!-- MC-707 Groovebox -->
+      <section class="module-panel" data-panel-id="panel-707" data-panel-title="MC-707 Groovebox">
+        <h2>MC-707 Groovebox</h2>
+        <div id="gb707Content" class="gb-707-content"></div>
+      </section>
+
+      <!-- Phase Monitor -->
+      <section class="module-panel" data-panel-id="panel-phase" data-panel-title="Phase Monitor">
         <h2>Phase Monitor</h2>
         <div id="phaseGrid" class="phase-grid"></div>
         <canvas id="scope" width="620" height="180"></canvas>
       </section>
 
-      <section class="module-panel record-panel">
+      <!-- Recorder -->
+      <section class="module-panel" data-panel-id="panel-record" data-panel-title="Recorder">
         <h2>Recorder</h2>
         <div class="record-controls">
           <button id="recordStart" class="accent">Start Recording</button>
@@ -89,12 +134,14 @@
         <ol id="recordings" class="recordings"></ol>
       </section>
 
-      <section class="module-panel keyboard-panel">
+      <!-- Performance Keyboard -->
+      <section class="module-panel" data-panel-id="panel-keyboard" data-panel-title="Performance Keyboard">
         <h2>Performance Keyboard</h2>
         <p class="hint">Use keyboard: Z S X D C V G B H N J M ,</p>
         <div id="keyboard" class="keyboard"></div>
       </section>
-    </main>
+
+    </div>
 
     <template id="knobTemplate">
       <div class="knob-control">
@@ -106,6 +153,6 @@
       </div>
     </template>
 
-    <script src="app.js" defer></script>
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
