@@ -1,6 +1,6 @@
 # siNNthoid Phase VCO
 
-A cross-platform desktop modular synthesizer (Electron + Web Audio) featuring four phasing VCOs, a TR-808 drum machine, an MC-707 groovebox, and a virtual patch cable routing system — all in a draggable, resizable panel workspace.
+A cross-platform desktop modular synthesizer (Electron + Web Audio) featuring four phasing VCOs, an analog-style drumbox, a clip-based groovebox, and a virtual patch cable routing system — all in a draggable, resizable panel workspace.
 
 Inspired by *Piano Phase* reinterpretation techniques and the hands-on workflow of Eurorack modular synthesis.
 
@@ -20,7 +20,7 @@ Inspired by *Piano Phase* reinterpretation techniques and the hands-on workflow 
 - Global BPM, swing, gate, humanize, phase spread, transpose
 - ADSR envelope, low-pass filter + resonance, drive, delay, LFO
 
-### TR-808 Drum Machine
+### Drumbox
 - **12 instruments** synthesized entirely via Web Audio (no samples):
   kick, snare, clap, closed hi-hat, open hi-hat, low/mid/high tom, rimshot, cowbell, cymbal, maracas
 - **16-step sequencer** with A/B pattern switching
@@ -28,7 +28,7 @@ Inspired by *Piano Phase* reinterpretation techniques and the hands-on workflow 
 - Accent row with adjustable accent level
 - Individual output jacks (kick, snare, hi-hat, percussion) for modular routing
 
-### MC-707 Groovebox
+### Groovebox
 - **4 tracks** with independent oscillator + filter + amp envelope
 - **4 clips per track** (16 clip slots) with click-to-launch
 - **Scene launcher** — trigger all 4 clips simultaneously
@@ -43,7 +43,7 @@ Inspired by *Piano Phase* reinterpretation techniques and the hands-on workflow 
 - Right-click cables to change color or remove
 - Click a cable to select, then press Delete to remove
 - Default pre-patched cables recreate the classic signal chain on first launch:
-  VCOs → Drive → Filter → Delay/Dry → Master, plus 808 and 707 into Master
+  VCOs → Drive → Filter → Delay/Dry → Master, plus Drumbox and Groovebox into Master
 
 ### Performance & Recording
 - On-screen keyboard + computer keyboard input
@@ -73,8 +73,8 @@ Built with `electron-builder` for Windows (NSIS + portable), macOS (DMG), and Li
 1. Launch the app — panels appear in a grid-like default layout
 2. Click **Initialize Audio** to activate the audio engine and patch cables
 3. Click **Start Phase Loop** to hear the 4 VCO phasing synthesizer
-4. Click **Start** on the TR-808 panel to layer in drum patterns
-5. Click **Start** on the MC-707 panel to add groovebox sequences
+4. Click **Start** on the Drumbox panel to layer in drum patterns
+5. Click **Start** on the Groovebox panel to add clip-based sequences
 6. **Drag panel headers** to rearrange modules on the workspace
 7. **Drag panel edges/corners** to resize
 8. **Click output jacks → drag to input jacks** to create patch cables
@@ -113,8 +113,8 @@ js/
   cable-manager.js   SVG patch cable rendering and interaction
   patch-router.js    Web Audio graph routing engine
   clock-bus.js       Shared BPM clock for all sequencers
-  drum-machine.js    TR-808 drum machine module
-  groovebox.js       MC-707 groovebox module
+  drum-machine.js    Drumbox module
+  groovebox.js       Groovebox module
 ```
 
 ## License

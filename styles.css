@@ -637,7 +637,7 @@ textarea {
   letter-spacing: 0.03em;
 }
 
-/* ─── TR-808 Drum Machine ───────────────────────────── */
+/* ─── Drumbox ───────────────────────────────────────── */
 
 .drum-808-content {
   overflow-y: auto;
@@ -762,7 +762,7 @@ textarea {
   border-top: 1px solid rgba(126, 154, 198, 0.12);
 }
 
-/* ─── MC-707 Groovebox ──────────────────────────────── */
+/* ─── Groovebox ─────────────────────────────────────── */
 
 .gb-707-content {
   overflow-y: auto;
